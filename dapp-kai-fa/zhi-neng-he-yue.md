@@ -32,10 +32,108 @@
 
 现实世界的合约交易，合约的履行还是需要靠 交易机制（是否允许赊账、空头支票）、人品（诚信）、惩罚（强力机构介入），而这些机制数字化的难度和成本很高，尤其是数字化通证(token)与实物的兑换环节中还是有违约风险。&#x20;
 
+判断智能合约是否是空头支票的原则：
 
+1、交易机制：是否空头支票。
+
+2、交付物是否只是真实物品的一个数字化标签(token)。
+
+如果是这两点，那么还是有违约的风险，因为最终拿到真实交付物品还是要靠人品、强力机构介入。
 
 ## 智能合约语言
 
+由于智能合约是EVM可执行的低级代码段。低级代码，对人的友好性低。因此智能合约也有其友好的高级语言。以太坊提供了对开发者友好的智能合约编程语言：
 
+1. Solidity
+2. Vyper
+
+所以这里很容易理解智能合约语言和智能合约的关系：智能合约语言是智能合约的友好可视化形式，智能合约是语言在EVM中的编译物。这种关系跟Java语言与Jar包(class文件)、C++/C语言与.o文件（.exe）的关系是一样。
 
 ## 智能合约例子
+
+这里采用solidity语言、对照Java语法来介绍智能合约的例子：
+
+````solidity
+```remix-solidity
+pragma solidity ^0.8.3;
+contract Primitives {
+    bool public boo = true;
+    /*
+    uint stands for unsigned integer, meaning non negative integers
+    different sizes are available
+        uint8   ranges from 0 to 2 ** 8 - 1
+        uint16  ranges from 0 to 2 ** 16 - 1
+        ...
+        uint256 ranges from 0 to 2 ** 256 - 1
+    */
+    uint8 public u8 = 1;
+    uint public u256 = 456;
+    uint public u = 123; // uint is an alias for uint256
+
+    /*
+    Negative numbers are allowed for int types.
+    Like uint, different ranges are available from int8 to int256
+    */
+    int8 public i8 = -1;
+    int public i256 = 456;
+    int public i = -123; // int is same as int256
+
+    address public addr = 0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c;
+
+    // Default values
+    // Unassigned variables have a default value
+    bool public defaultBoo; // false
+    uint public defaultUint; // 0
+    int public defaultInt; // 0
+    address public defaultAddr; // 0x0000000000000000000000000000000000000000
+    function f(uint a, uint b) public pure returns (uint) {
+        return a * (b + 42);
+    }
+}
+```
+````
+
+如果用Java语言来表示这段合约，则如下：
+
+```java
+package a.b.c; //
+    public class Primitives{
+    public boolean boo = true;
+    public short u8 = 1;
+    public long u256 = 456;
+    public long u = 123;
+    public byte i8 = -1;
+    public int i256 = 456;
+    public String addr = "0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c";
+    public boolean defaultBoo = false;
+    public long defaultUint = 0;
+    public int defaultInt = 0;
+    public String defaultAddr = "0x0000000000000000000000000000000000000000";
+    public long f(long a,long b){
+        return a*(b + 42);
+    }
+}
+```
+
+通过两份代码对比，我们可以看出差异和共同点：
+
+|         | Solidity                                   | C++/C                  | Java                            |
+| ------- | ------------------------------------------ | ---------------------- | ------------------------------- |
+| 版本声明    | pragma...                                  | 无                      | 无                               |
+| 包名/名字空间 | 无                                          | 有                      | 有                               |
+| 类型      | 有无符号之分，多了address基本类型                       | 有无符号类型                 | 无无符号类型                          |
+| 类声明     | contract                                   | class                  | <p>class<br>类声名前可以加<br>访问控制</p> |
+| 访问控制    | public\private\external\internal\view\pure | public\private\protect | public\private\protect          |
+| 继承性     | 可继承                                        | 可继承                    | 可继承                             |
+| 嵌套声明    | 嵌套结构体                                      | 嵌套类/结构体                | 嵌套类                             |
+
+Solidity的关键字说明：
+
+1. public：可以修饰变量和函数，其访问属性跟C++/C 、Java的public 一样。合约成员的默认属性是public。
+2. private：可以修饰变量和函数，其访问属性跟C++/C 、Java的private 一样。
+3. external：只能修饰函数，并且只能被外部调用，不能被合约自己或者其之类调用。
+4. internal：可修饰函数和变量跟C++/C中的protected 一样。
+5. view：只能修饰函数，函数内部能够对内部变量进行访问，但不能修改。该函数被外部调用之后，不会改变合约内部状态。该关键字稍微有别于C++的const 函数声明。
+6. pure：只能修饰函数，函数内部不能对合约内部变量进行访问。pure的功能和view 一样，只是pure 做了编译时检查，view没有。这两个关键字是constant关键字演化过来，告诉编译器这里不需要修改状态、校验状态，因此执行不需要消耗gas。用来执行一些合约逻辑代码，该代码只跟入参有关。有点类似Java工具类的static 函数。
+
+具体的合约语言规范，参考：[https://docs.soliditylang.org/en/latest/style-guide.html](https://docs.soliditylang.org/en/latest/style-guide.html)
